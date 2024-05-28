@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  bot_clock:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py
+    depends_on:
+      - celery_worker_clock
+      - celery_beat_clock
+
+  celery_worker_clock:
+    build:
+      context: .
+    command: celery -A tasks worker --loglevel=INFO
+    depends_on:
+      - redis_clock
+
+  celery_beat_clock:
+    build:
+      context: .
+    command: celery -A tasks beat --loglevel=INFO
+    depends_on:
+      - redis_clock
+
+  redis_clock:
+    container_name: redis_clock
+    image: redis:latest
